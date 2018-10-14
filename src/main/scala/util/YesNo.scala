@@ -1,18 +1,6 @@
 
 package edu.ucsb.pllab.pie
 
-import scala.util.parsing.combinator._
-
-trait ParserHelper[T] { this: RegexParsers =>
-	def main: this.Parser[T]
-
-	def apply(q: String) = this.parseAll(main, q) match {
-		case Success(matching, _) => scala.util.Success(matching)
-		case Failure(err, _) => scala.util.Failure(new Exception(err))
-		case Error(err, _) => scala.util.Failure(new Exception(err))
-	}
-}
-
 trait YesNo[+T] {
 	def get: T
 	def isYes: Boolean

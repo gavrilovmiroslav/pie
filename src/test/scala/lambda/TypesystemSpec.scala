@@ -1,45 +1,45 @@
 
-package edu.ucsb.pllab.pie
-
+package edu.ucsb.pllab.pie.lambda
+import edu.ucsb.pllab.pie._
 import org.scalatest._
 import scala.util.parsing.combinator._
-import scala.util._
 
 class TypesystemLevelParserSpec extends FlatSpec with Matchers {
 
 	import types._
 	import values._
-	import typesystem._
 
 	import TypeLevel._
-	import TypeLevel.Implicits._
 	import ValueLevel._
+	import λTypeLevel._
+	import λTypeLevel.Implicits._
+	import λValueLevel._
 
 	import TypesystemLevel._
 
 	object Parser extends RegexParsers 
-		with TypesystemParser 
-		with ParserHelper[Value] {
+		with λTypesystemParser 
+		with ConcreteParser[Value] {
 		
 		override def main = application
 	}
 	
 	"The typesystem" should "allow only typed arguments in functions" in {
-		assert(Parser("λx.left x").isFailure)
-		assert(Parser("λ_:_._").isFailure)
-		assert(Parser("λf. λg. f g").isFailure)
+		assert(Parser("λx.left x").isNo)
+		assert(Parser("λ_:1._").isNo)
+		assert(Parser("λf. λg. f g").isNo)
 
-		assert(Parser("λx:_._") == 
-			Success(func(τd(id('x), τU), one)))
+		assert(Parser("λx:1._") == 
+			Yes(func(τd(id('x), τU), one)))
 
 		assert(Parser("λx:'t+'u.left x") == 
-			Success(func(τd(id('x), 't+'u), left(id('x)))))
+			Yes(func(τd(id('x), 't+'u), left(id('x)))))
 	
-		assert(Parser("λf:'a→'b. λg:'a. f g") ==
-			Success(func(τd(id('f), 'a → 'b), func(τd(id('g), 'a), id('f) $ id('g)))))
+		assert(Parser("λf:'a⟶'b. λg:'a. f g") ==
+			Yes(func(τd(id('f), 'a ⟶ 'b), func(τd(id('g), 'a), id('f) $ id('g)))))
 
-		assert(Parser("λ3:'a.3").isFailure)
-		assert(Parser("λ'a:'a.3").isFailure)
+		assert(Parser("λ3:'a.3").isNo)
+		assert(Parser("λ'a:'a.3").isNo)
 	}
 
 	"Typechecking" should "work with simple types" in {	
@@ -57,14 +57,14 @@ class TypesystemLevelParserSpec extends FlatSpec with Matchers {
 	}
 
 	it should "enable type introduction through function abstractions" in {	
-		assert(typecheck(Map())(Parser("λx:'a.3").get) == Yes('a→τN))
-		assert(typecheck(Map())(Parser("λx:'a.x").get) == Yes('a→'a))
-		assert(typecheck(Map())(Parser("λf:'a→'b.λg:'a.f g").get) == Yes(('a→'b)→('a→'b)))
+		assert(typecheck(Map())(Parser("λx:'a.3").get) == Yes('a⟶τN))
+		assert(typecheck(Map())(Parser("λx:'a.x").get) == Yes('a⟶'a))
+		assert(typecheck(Map())(Parser("λf:'a⟶'b.λg:'a.f g").get) == Yes(('a⟶'b)⟶('a⟶'b)))
 	}
 
 	it should "be aware of shadowing" in {	
-		assert(typecheck(Map())(Parser("λf:'a→'b.λf:'a.f").get) == Yes(('a→'b)→('a→'a)))
-		assert(typecheck(Map())(Parser("λf:'a→'b.λg:'a.f").get) == Yes(('a→'b)→('a→('a→'b))))
+		assert(typecheck(Map())(Parser("λf:'a⟶'b.λf:'a.f").get) == Yes(('a⟶'b)⟶('a⟶'a)))
+		assert(typecheck(Map())(Parser("λf:'a⟶'b.λg:'a.f").get) == Yes(('a⟶'b)⟶('a⟶('a⟶'b))))
 	}
 
 	it should "stop the application of weird arguments" in {	
@@ -73,7 +73,7 @@ class TypesystemLevelParserSpec extends FlatSpec with Matchers {
 	}
 
 	"Inference" should "work for sum types" in {	
-		assert(typecheck(Map())(Parser("(λf:_+_._) left _").get) == Yes(τU))
-		assert(typecheck(Map())(Parser("(λf:_+_.f) left _").get) == Yes(τU + τU))
+		assert(typecheck(Map())(Parser("(λf:1+1._) left _").get) == Yes(τU))
+		assert(typecheck(Map())(Parser("(λf:1+1.f) left _").get) == Yes(τU + τU))
 	}
 }

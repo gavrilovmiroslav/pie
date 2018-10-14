@@ -3,13 +3,14 @@ package edu.ucsb.pllab.pie
 
 import scala.util.parsing.combinator._
 
-package typesystem {
-	import values._
-	import types._
+import values._
+import types._
+
+package lambda {
 
 	case class Typed(value: Value, τvalue: Type) extends Value
 
-	trait TypesystemParser extends TypeParser with ValueParser {
+	trait λTypesystemParser extends λTypeParser with λValueParser {
 		this: RegexParsers =>
 
 		def typed: Parser[Typed] =
@@ -32,33 +33,35 @@ package typesystem {
 	object `package` {
 		def unify(Γ: Map[Value, Type])(a: Type, b: Type): YesNo[Type] = 
 			if(a == Inferable && a == b) 
-				No("both types are inferable but no clues given.")
-			else if(a == b)
-				Yes(a) 
-			else if(a == Inferable)
-				Yes(b)
-			else if(b == Inferable)
-				Yes(a)
-			else 
-				(a, b) match {
-					case (SumType(l1, r1), SumType(l2, r2)) =>
-						val ul = unify(Γ)(l1, l2)
-						if(ul.isNo) return ul 
-						val ur = unify(Γ)(r1, r2) 
-						if(ur.isNo) return ur 
+				No("Unification failed: both types are inferable but no clues given.")
+			else if(a == b) Yes(a) 
+			else if(a == Inferable) Yes(b)
+			else if(b == Inferable) Yes(a)
+			else (a, b) match {
+				case (SumType(l1, r1), SumType(l2, r2)) =>
+					val ul = unify(Γ)(l1, l2)
+					if(ul.isNo) return ul 
+					val ur = unify(Γ)(r1, r2) 
+					if(ur.isNo) return ur 
+					Yes(SumType(ul.get, ur.get))
 
-						Yes(SumType(ul.get, ur.get))
+				case (ProductType(l1, r1), ProductType(l2, r2)) =>
+					val ul = unify(Γ)(l1, l2)
+					if(ul.isNo) return ul 
+					val ur = unify(Γ)(r1, r2) 
+					if(ur.isNo) return ur 
+					Yes(ProductType(ul.get, ur.get))
 
-					case (ProductType(l1, r1), ProductType(l2, r2)) =>
-						val ul = unify(Γ)(l1, l2)
-						if(ul.isNo) return ul 
-						val ur = unify(Γ)(r1, r2) 
-						if(ur.isNo) return ur 
+				case (FuncType(a1, b1), FuncType(a2, b2)) =>
+					val ul = unify(Γ)(a1, a2)
+					if(ul.isNo) return ul 
+					val ur = unify(Γ)(b1, b2) 
+					if(ur.isNo) return ur 
+					Yes(FuncType(ul.get, ur.get))
 
-						Yes(ProductType(ul.get, ur.get))
-
-					case _ => No("couldn't figure out how to unify `$a` and `$b`;\n\tenvironment: $Γ")
-				}
+				case _ => 
+					No("Couldn't figure out how to unify `$a` and `$b`;\n\tenvironment: $Γ")
+			}
 
 		def typecheck(Γ: Map[Value, Type])(ast: Value): YesNo[Type] = ast match {
 			case One => 
