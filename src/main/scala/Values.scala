@@ -6,15 +6,27 @@ import scala.util.parsing.combinator._
 package values {
 	trait Value { value: Value =>
 		def tup(r: Value) = Product(value, r)
-		def $(r: Value) = App(value, r)
 	}
 
-	case object One extends Value
-	case class N(n: Int) extends Value
-	case class Left(v: Value) extends Value
-	case class Right(v: Value) extends Value
-	case class Product(l: Value, r: Value) extends Value
-	case class App(l: Value, r: Value) extends Value 
+	case object One extends Value {
+		override def toString = "_"
+	}
+
+	case class N(n: Int) extends Value {
+		override def toString = s"$n"
+	}
+
+	case class Left(v: Value) extends Value {
+		override def toString = s"left $v"
+	}
+
+	case class Right(v: Value) extends Value {
+		override def toString = s"right $v"
+	}
+
+	case class Product(l: Value, r: Value) extends Value {
+		override def toString = s"($l, $r)"
+	}
 
 	object ValueLevel {
 		def one = One

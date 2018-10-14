@@ -79,7 +79,7 @@ package lambda {
 						No(s"Γ does not contain type for `$b`")
 				}
 
-			case id@Id(_) =>
+			case id@values.Id(_) =>
 				Γ.get(id) match {
 					case Some(t) => Yes(t)
 					case None => 
@@ -92,7 +92,7 @@ package lambda {
 					case _ => No(s"Cannot typecheck product `($a, $b)`")
 				}
 
-			case Func(Typed(id@Id(a), τa), b) =>
+			case Func(Typed(id@values.Id(a), τa), b) =>
 				val env = Γ.get(id) match {
 					case Some(ta) if ta == τa => Γ
 					case _ => Γ + (id → τa)

@@ -9,18 +9,32 @@ package types {
 		def ×(r: Type) = ProductType(this, r)
 	}
 
-	case class SumType(l: Type, r: Type) extends Type
-	case class ProductType(l: Type, r: Type) extends Type
+	case class SumType(l: Type, r: Type) extends Type {
+		override def toString = s"$l + $r"
+	}
+
+	case class ProductType(l: Type, r: Type) extends Type {
+		override def toString = s"$l × $r"
+	}
 
 	object TypeLevel {
+		def τV = VoidType
 		def τU = UnitType
 		def τN = NatType
 	}
 
 	trait StandardType extends Type
-	case object VoidType extends StandardType
-	case object UnitType extends StandardType
-	case object NatType extends StandardType
+	case object VoidType extends StandardType {
+		override def toString = "0"
+	}
+
+	case object UnitType extends StandardType {
+		override def toString = "1"
+	}
+
+	case object NatType extends StandardType {
+		override def toString = "nat"
+	}
 
 	trait TypeParser { this: RegexParsers =>
 
