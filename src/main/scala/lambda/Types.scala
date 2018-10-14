@@ -8,7 +8,6 @@ package edu.ucsb.pllab.pie.types {
 	case class VarType(name: Symbol) extends StandardType
 
 	object λTypeLevel {
-
 		object Implicits {
 			import scala.language.implicitConversions
 			implicit def SymToVar(s: Symbol): Type = τV(s)

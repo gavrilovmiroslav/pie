@@ -3,12 +3,22 @@ import scala.util.parsing.combinator._
 import edu.ucsb.pllab.pie._
 
 package edu.ucsb.pllab.pie.values {
-	case class Id(id: Symbol) extends Value
-	case class Func(v: Value, body: Value) extends Value
+	case class Id(id: Symbol) extends Value {
+		override def toString = s"${id.name}"
+	}
+
+	case class Func(v: Value, body: Value) extends Value {
+		override def toString = s"λ$v. $body"
+	}
+
+	case class App(l: Value, r: Value) extends Value {
+		override def toString = s"$l $r"
+	}
 
 	object λValueLevel {
 		def func(v: Value, b: Value) = Func(v, b)
 	}
+
 
 	trait λValueParser extends ValueParser { this: RegexParsers =>
 

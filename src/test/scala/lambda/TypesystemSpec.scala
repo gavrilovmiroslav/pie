@@ -36,7 +36,7 @@ class TypesystemLevelParserSpec extends FlatSpec with Matchers {
 			Yes(func(τd(id('x), 't+'u), left(id('x)))))
 	
 		assert(Parser("λf:'a⟶'b. λg:'a. f g") ==
-			Yes(func(τd(id('f), 'a ⟶ 'b), func(τd(id('g), 'a), id('f) $ id('g)))))
+			Yes(func(τd(id('f), 'a ⟶ 'b), func(τd(id('g), 'a), App(id('f), id('g))))))
 
 		assert(Parser("λ3:'a.3").isNo)
 		assert(Parser("λ'a:'a.3").isNo)
