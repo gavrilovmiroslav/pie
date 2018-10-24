@@ -159,10 +159,6 @@ package edu.ucsb.pllab.pie.iso {
 		}
 
 		def eval(program: CombType, v: Value): YesNo[Value] = 
-			trace(program, v) match {
-				case Yes(traced) => Yes(traced.last._2.get)
-				case No(err) => No(err)
-			}
-
+      trace(program, v).map { _.last._2.get }
 	}
 }

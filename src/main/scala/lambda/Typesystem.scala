@@ -39,10 +39,15 @@ package lambda {
 			else if(b == Inferable) Yes(a)
 			else (a, b) match {
 				case (SumType(l1, r1), SumType(l2, r2)) =>
-					val ul = unify(Γ)(l1, l2)
-					if(ul.isNo) return ul 
-					val ur = unify(Γ)(r1, r2) 
-					if(ur.isNo) return ur 
+
+          val ul = for {
+            ul <- unify(Γ)(l1, l2) if ul.isYes
+          } yield ul
+
+          val ur = for {
+            ur <- unify(Γ)(r1, r2) if ur.isYes
+          } yield ur
+
 					Yes(SumType(ul.get, ur.get))
 
 				case (ProductType(l1, r1), ProductType(l2, r2)) =>
