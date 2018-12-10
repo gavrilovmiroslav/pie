@@ -50,3 +50,4 @@ class IsoParserSpec extends FlatSpec with Matchers {
 		}
 	}
 }
+

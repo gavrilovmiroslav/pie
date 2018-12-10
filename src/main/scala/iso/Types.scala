@@ -113,7 +113,7 @@ package edu.ucsb.pllab.pie.types {
         }
     }
 
-    trait πTypeParser { this: DebugRegexParsers => 
+    trait πTypeParser { this: RegexParsers => 
         def inc: Parser[UniType] = "inc" ^^ { _ => Arith.elim }
         def dec: Parser[UniType] = "dec" ^^ { _ => Arith.intr }
 

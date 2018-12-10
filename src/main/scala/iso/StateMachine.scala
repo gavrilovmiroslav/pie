@@ -158,11 +158,16 @@ package edu.ucsb.pllab.pie.iso {
 			fixpoint(start, Yes(Seq()))
 		}
 
-		def eval(program: CombType, v: Value): YesNo[Value] = 
+		def eval(program: CombType, v: Value): YesNo[Value] = {
+			println(s"Program: $program")
+			println(s"Input  : $v")
 			trace(program, v) match {
-				case Yes(traced) => Yes(traced.last._2.get)
+				case Yes(traced) => 
+					traced.foreach { println }
+					Yes(traced.last._2.get)
 				case No(err) => No(err)
 			}
-
+		}
 	}
 }
+
